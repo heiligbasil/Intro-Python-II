@@ -2,7 +2,7 @@ import sys
 import textwrap
 from room import Room
 from player import Player
-
+from item import Item
 
 # Declare all the rooms
 room = {
@@ -36,13 +36,27 @@ room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
 
+# Declare all of the items
+item = [Item('torch', 'A dry torch with only the top burnt.'),
+        Item('matchbook', 'A full book of dry intact matches.'),
+        Item('rope', 'A coiled sturdy-looking dry twisted rope of twine.'),
+        Item('dagger', 'A rusting and blunt weapon in a sheath.'), ]
+
+
+# Link the items to the rooms
+room['foyer'].items = [item[0]]
+room['overlook'].items = [item[1]]
+room['narrow'].items = [item[2]]
+room['treasure'].items = [item[3]]
+
+
 #
 # Main
 #
 
 # Make a new player object that is currently in the 'outside' room.
-player: Player = Player(input("What's your name? ")
-                        or "Kowalksi", room['outside'])
+player: Player = Player(input("What's your name? ") or "Kowalksi",
+                        room['outside'])
 print(f"Welcome, {player.name} :)")
 
 # Write a loop that:
@@ -60,7 +74,10 @@ print(f"Welcome, {player.name} :)")
 while True:
     print(f"{player.name}'s current location is {player.current_room.name}.")
     print(textwrap.TextWrapper(width=50).fill(player.current_room.description))
-    command: chr = input("== Where do you want to move? == (n/s/e/w) > ")
+    if len(player.current_room.items) > 0:
+        for item in player.current_room.items:
+            print(f'There is a {item.name} here. {item.description}')
+    command: str = input("== Where do you want to move? == (n/s/e/w) > ")
     command = command.lower().strip()[0]
     print()
     if command in ["n", "s", "e", "w"]:
