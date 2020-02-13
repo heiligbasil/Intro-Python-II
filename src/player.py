@@ -1,5 +1,6 @@
 from enum import Enum
 from room import Room
+from item import Item
 
 
 # Associate each direction with its cardinal identifier
@@ -18,7 +19,7 @@ class Player:
         '''This is the default constructor'''
         self.name = name
         self.current_room = starting_room
-
+        self.items: Item = []
     def go(self, direction):
         '''This defines Player movement'''
         go_to_room: Room = getattr(self.current_room, f'{direction}_to')

@@ -72,21 +72,30 @@ print(f"Welcome, {player.name} :)")
 
 
 while True:
+    print('|<>| Location |<>|')
     print(f"{player.name}'s current location is {player.current_room.name}.")
     print(textwrap.TextWrapper(width=50).fill(player.current_room.description))
     if len(player.current_room.items) > 0:
         for item in player.current_room.items:
             print(f'There is a {item.name} here. {item.description}')
-    command: str = input("== Where do you want to move? == (n/s/e/w) > ")
+    print('You can move in a direction (n/s/e/w), show (i)nventory, or (q)uit.')
+    command: str = input('|<>| What is your desire? |<>| ==> ')
     command = command.lower().strip()[0]
-    print()
-    if command in ["n", "s", "e", "w"]:
+    if command in ['n', 's', 'e', 'w']:
         # Go to the room, if possible
         player.go(command)
+    elif command == 'i':
+        # Look through the current inventory
+        if len(player.items) > 0:
+            print('|<>| Inventory |<>|')
+            for item in player.items:
+                print(f'You have a {item.name}. {item.description}')
+        else:
+            print('Your pockets are empty :(')
     elif command == 'q':
         # Leave this program
         print("Goodbye...")
         sys.exit()
     else:
         # Unused command
-        print("|<>|Command misunderstood|<>|")
+        print("|<>| Command misunderstood |<>|")
