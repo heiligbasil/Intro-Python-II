@@ -1,3 +1,4 @@
+import textwrap
 from room import Room
 from player import Player
 
@@ -5,7 +6,7 @@ from player import Player
 # Declare all the rooms
 room = {
     'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons"),
+                     "North of you, the cave mount beckons."),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
 passages run north and east."""),
@@ -38,8 +39,10 @@ room['treasure'].s_to = room['narrow']
 # Main
 #
 
+
 # Make a new player object that is currently in the 'outside' room.
 player: Player = Player("Kowalksi", room['outside'])
+
 
 # Write a loop that:
 #
@@ -53,3 +56,5 @@ player: Player = Player("Kowalksi", room['outside'])
 # If the user enters "q", quit the game.
 
 print(f"{player.name}'s current location is {player.current_room.name}")
+print(textwrap.TextWrapper(width=50).fill(player.current_room.description))
+command: chr = input("== Where do you want to move? == (n/s/e/w) > ")
