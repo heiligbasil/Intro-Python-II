@@ -41,8 +41,9 @@ room['treasure'].s_to = room['narrow']
 #
 
 # Make a new player object that is currently in the 'outside' room.
-player: Player = Player("Kowalksi", room['outside'])
-
+player: Player = Player(input("What's your name? ")
+                        or "Kowalksi", room['outside'])
+print(f"Welcome, {player.name} :)")
 
 # Write a loop that:
 #
@@ -57,15 +58,18 @@ player: Player = Player("Kowalksi", room['outside'])
 
 
 while True:
-    print()
     print(f"{player.name}'s current location is {player.current_room.name}.")
     print(textwrap.TextWrapper(width=50).fill(player.current_room.description))
     command: chr = input("== Where do you want to move? == (n/s/e/w) > ")
-    command = command.lower()
-    if command == 'n' or command == 's' or command == 'e' or command == 'w':
+    command = command.lower().strip()[0]
+    print()
+    if command in ["n", "s", "e", "w"]:
+        # Go to the room, if possible
         player.go(command)
     elif command == 'q':
+        # Leave this program
         print("Goodbye...")
         sys.exit()
     else:
+        # Unused command
         print("|<>|Command misunderstood|<>|")
