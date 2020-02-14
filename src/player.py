@@ -15,11 +15,13 @@ class Cardinal(Enum):
 # currently.
 class Player:
     '''This is the Player class'''
+
     def __init__(self, name, starting_room):
         '''This is the default constructor'''
         self.name = name
         self.current_room = starting_room
         self.items: Item = []
+
     def go(self, direction):
         '''This defines Player movement'''
         go_to_room: Room = getattr(self.current_room, f'{direction}_to')
@@ -30,4 +32,3 @@ class Player:
         else:
             message = f'{self.name} cannot move {cardinal}.'
         print(message)
-    

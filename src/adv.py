@@ -59,23 +59,23 @@ room['treasure'].items = [item[3]]
 player: Player = Player(input("What's your name? ") or "Kowalksi",
                         room['outside'])
 print(f"Welcome, {player.name} :)")
-#player.current_room.items=[item[0]]
+
 
 # REPL command loop - the game's engine
 while True:
     print('|<>| Location |<>|')
     print(f"{player.name}'s current location is {player.current_room.name}.")
-    print(textwrap.TextWrapper(width=50).fill(player.current_room.description))
+    print(textwrap.TextWrapper(width=65).fill(player.current_room.description))
     if len(player.current_room.items) > 0:
         for item in player.current_room.items:
             print(f'There is a {item.name} here. {item.description}')
     print('You can move in a direction (n/s/e/w), show (i)nventory, or (q)uit.')
     command: str = input('|<>| What is your desire? |<>| ==> ')
-    command = command.lower().strip().split()#[0]
+    command = command.lower().strip().split()  # [0]
     if len(command) == 1:
         # Single word entered; only look at the first letter
         command = command[0][0]
-        if command[0] in ['n', 's', 'e', 'w']:
+        if command in ['n', 's', 'e', 'w']:
             # Go to the room, if possible
             player.go(command)
         elif command == 'i':
@@ -94,19 +94,28 @@ while True:
             # Unused command
             print("|<>| Command misunderstood |<>|")
     else:
-        # Multiple words entered, ideally in 'Verb Object' format
+        # Multiple words entered; ideally in 'Verb Object' format
+        commanded_object: str = command[1]
         if command[0] == 'get' or command[0] == 'take':
             # Pick up the item
-            item_to_get: str = command[1]
             for it in player.current_room.items:
-                if it.name == item_to_get:
+                if it.name == commanded_object:
+                    it.on_get()
                     player.items.append(it)
-                    #player.items.it.on_get()
                     player.current_room.items.remove(it)
+                    break
+            else:
+                print("That item was not found.")
         elif command[0] == 'drop' or command[0] == 'lose':
             # Leave the item in the room
-            pass
+            for it in player.items:
+                if it.name == commanded_object:
+                    it.on_drop()
+                    player.items.remove(it)
+                    player.current_room.items.append(it)
+                    break
+            else:
+                print("That item was not found.")
         else:
             # Unused command
             print("|<>| Command misunderstood |<>|")
-
