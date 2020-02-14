@@ -30,3 +30,4 @@ class Player:
         else:
             message = f'{self.name} cannot move {cardinal}.'
         print(message)
+    

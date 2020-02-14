@@ -6,7 +6,20 @@
 # This will be the base class for specialized item types to be declared later.
 class Item:
     '''This is the Item class'''
+
     def __init__(self, name, description):
         '''This is the default constructor'''
         self.name = name
         self.description = description
+
+    def __str__(self):
+        '''This is the overloaded String method'''
+        return f'Name: {self.name}\nDescription: {self.description}'
+
+    def on_get(self):
+        '''This method runs when an item is picked up'''
+        print(f'You have picked up a {self.name}.')
+
+    def on_drop(self):
+        '''This method runs when an item is dropped'''
+        print(f'You have dropped the {self.name}.')

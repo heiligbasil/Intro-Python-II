@@ -54,23 +54,14 @@ room['treasure'].items = [item[3]]
 # Main
 #
 
+
 # Make a new player object that is currently in the 'outside' room.
 player: Player = Player(input("What's your name? ") or "Kowalksi",
                         room['outside'])
 print(f"Welcome, {player.name} :)")
+#player.current_room.items=[item[0]]
 
-# Write a loop that:
-#
-# * Prints the current room name
-# * Prints the current description (the textwrap module might be useful here).
-# * Waits for user input and decides what to do.
-#
-# If the user enters a cardinal direction, attempt to move to the room there.
-# Print an error message if the movement isn't allowed.
-#
-# If the user enters "q", quit the game.
-
-
+# REPL command loop - the game's engine
 while True:
     print('|<>| Location |<>|')
     print(f"{player.name}'s current location is {player.current_room.name}.")
@@ -80,22 +71,42 @@ while True:
             print(f'There is a {item.name} here. {item.description}')
     print('You can move in a direction (n/s/e/w), show (i)nventory, or (q)uit.')
     command: str = input('|<>| What is your desire? |<>| ==> ')
-    command = command.lower().strip()[0]
-    if command in ['n', 's', 'e', 'w']:
-        # Go to the room, if possible
-        player.go(command)
-    elif command == 'i':
-        # Look through the current inventory
-        if len(player.items) > 0:
+    command = command.lower().strip().split()#[0]
+    if len(command) == 1:
+        # Single word entered; only look at the first letter
+        command = command[0][0]
+        if command[0] in ['n', 's', 'e', 'w']:
+            # Go to the room, if possible
+            player.go(command)
+        elif command == 'i':
+            # Look through the current inventory
             print('|<>| Inventory |<>|')
-            for item in player.items:
-                print(f'You have a {item.name}. {item.description}')
+            if len(player.items) > 0:
+                for item in player.items:
+                    print(f'You have a {item.name}. {item.description}')
+            else:
+                print('Your pockets are empty :(')
+        elif command == 'q':
+            # Leave this program
+            print("Goodbye...")
+            sys.exit()
         else:
-            print('Your pockets are empty :(')
-    elif command == 'q':
-        # Leave this program
-        print("Goodbye...")
-        sys.exit()
+            # Unused command
+            print("|<>| Command misunderstood |<>|")
     else:
-        # Unused command
-        print("|<>| Command misunderstood |<>|")
+        # Multiple words entered, ideally in 'Verb Object' format
+        if command[0] == 'get' or command[0] == 'take':
+            # Pick up the item
+            item_to_get: str = command[1]
+            for it in player.current_room.items:
+                if it.name == item_to_get:
+                    player.items.append(it)
+                    #player.items.it.on_get()
+                    player.current_room.items.remove(it)
+        elif command[0] == 'drop' or command[0] == 'lose':
+            # Leave the item in the room
+            pass
+        else:
+            # Unused command
+            print("|<>| Command misunderstood |<>|")
+
