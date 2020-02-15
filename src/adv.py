@@ -3,6 +3,11 @@ import textwrap
 from room import Room
 from player import Player
 from item import Item
+from colorama import Fore, Back, Style
+import colorama
+
+# Initialize the ANSI engine for Windows
+colorama.init(autoreset=True)
 
 # Declare all the rooms
 room = {
@@ -56,22 +61,24 @@ room['treasure'].items = [item[3]]
 
 
 # Make a new player object that is currently in the 'outside' room.
-player: Player = Player(input("What's your name? ") or "Kowalksi",
+player: Player = Player(input("What's your name? ") or 'Kowalksi',
                         room['outside'])
-print(f"Welcome, {player.name} :)")
+print(f'{Back.WHITE}{Fore.BLACK}Welcome, {player.name} :)')
 
 
 # REPL command loop - the game's engine
 while True:
-    print('|<>| Location |<>|')
-    print(f"{player.name}'s current location is {player.current_room.name}.")
+    print(f'{Fore.BLUE}|<>| Location |<>|')
+    print(f"{player.name}'s current location is {Back.MAGENTA}{player.current_room.name}{Back.RESET}.")
     print(textwrap.TextWrapper(width=65).fill(player.current_room.description))
     if len(player.current_room.items) > 0:
         for item in player.current_room.items:
-            print(f'There is a {item.name} here. {item.description}')
+            print(
+                f'There is a {Back.GREEN}{item.name}{Back.RESET} here. {item.description}')
     print('You can move in a direction (n/s/e/w), show (i)nventory, or (q)uit.')
-    command: str = input('|<>| What is your desire? |<>| ==> ')
-    command = command.lower().strip().split()  # [0]
+    command: str = input(
+        f'{Style.BRIGHT}|<>| What is your desire? |<>| ==>{Style.RESET_ALL}')
+    command = command.lower().strip().split()
     if len(command) == 1:
         # Single word entered; only look at the first letter
         command = command[0][0]
@@ -80,10 +87,11 @@ while True:
             player.go(command)
         elif command == 'i':
             # Look through the current inventory
-            print('|<>| Inventory |<>|')
+            print(f'{Fore.YELLOW}|<>| Inventory |<>|')
             if len(player.items) > 0:
                 for item in player.items:
-                    print(f'You have a {item.name}. {item.description}')
+                    print(
+                        f'You have a {Back.GREEN}{item.name}{Back.RESET}. {item.description}')
             else:
                 print('Your pockets are empty :(')
         elif command == 'q':
@@ -92,7 +100,7 @@ while True:
             sys.exit()
         else:
             # Unused command
-            print("|<>| Command misunderstood |<>|")
+            print(f'{Fore.MAGENTA}|<>| Command misunderstood |<>|')
     else:
         # Multiple words entered; ideally in 'Verb Object' format
         commanded_object: str = command[1]
@@ -105,7 +113,7 @@ while True:
                     player.current_room.items.remove(it)
                     break
             else:
-                print("That item was not found.")
+                print(f'{Fore.CYAN}That item was not found.')
         elif command[0] == 'drop' or command[0] == 'lose':
             # Leave the item in the room
             for it in player.items:
@@ -115,7 +123,7 @@ while True:
                     player.current_room.items.append(it)
                     break
             else:
-                print("That item was not found.")
+                print(f'{Fore.CYAN}That item was not found.')
         else:
             # Unused command
-            print("|<>| Command misunderstood |<>|")
+            print(f'{Fore.MAGENTA}|<>| Command misunderstood |<>|')
