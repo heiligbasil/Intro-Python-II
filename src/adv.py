@@ -6,6 +6,7 @@ from item import Item
 from colorama import Fore, Back, Style
 import colorama
 
+# https://github.com/tartley/colorama
 # Initialize the ANSI engine for Windows
 colorama.init(autoreset=True)
 
@@ -75,9 +76,10 @@ while True:
         for item in player.current_room.items:
             print(
                 f'There is a {Back.GREEN}{item.name}{Back.RESET} here. {item.description}')
-    print('You can move in a direction (n/s/e/w), show (i)nventory, or (q)uit.')
+    print(
+        f'You have {Fore.YELLOW}{player.xp}{Fore.RESET} XP and can move in a direction (n/s/e/w), show (i)nventory, or (q)uit.')
     command: str = input(
-        f'{Style.BRIGHT}|<>| What is your desire? |<>| ==>{Style.RESET_ALL}')
+        f'{Fore.CYAN}|<>| What is your desire? |<>|{Back.RESET} ==> ')
     command = command.lower().strip().split()
     if len(command) == 1:
         # Single word entered; only look at the first letter
@@ -111,6 +113,7 @@ while True:
                     it.on_get()
                     player.items.append(it)
                     player.current_room.items.remove(it)
+                    player.xp += 2
                     break
             else:
                 print(f'{Fore.CYAN}That item was not found.')
@@ -121,6 +124,7 @@ while True:
                     it.on_drop()
                     player.items.remove(it)
                     player.current_room.items.append(it)
+                    player.xp += 1
                     break
             else:
                 print(f'{Fore.CYAN}That item was not found.')

@@ -16,10 +16,11 @@ class Cardinal(Enum):
 class Player:
     '''This is the Player class'''
 
-    def __init__(self, name, starting_room):
+    def __init__(self, name, starting_room, xp=0):
         '''This is the default constructor'''
         self.name = name
         self.current_room = starting_room
+        self.xp = xp
         self.items: Item = []
 
     def go(self, direction):
@@ -29,6 +30,7 @@ class Player:
         if go_to_room:
             self.current_room = go_to_room
             message = f'{self.name} has moved {cardinal}.'
+            self.xp += 1
         else:
             message = f'{self.name} cannot move {cardinal}.'
         print(message)
