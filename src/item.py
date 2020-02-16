@@ -17,9 +17,18 @@ class Item:
         return f'Name: {self.name}\nDescription: {self.description}'
 
     def on_get(self):
-        '''This method runs when an item is picked up'''
+        '''This method runs when an Item is picked up'''
         print(f'You have picked up a {self.name}.')
 
     def on_drop(self):
-        '''This method runs when an item is dropped'''
+        '''This method runs when an Item is dropped'''
         print(f'You have dropped the {self.name}.')
+
+
+class LightSource(Item):
+    '''This is a subclass of Item'''
+
+    def on_drop(self):
+        '''This method runs when a LightSource is dropped'''
+        print("It's not wise to drop your only potential source of light...")
+        super().on_drop()

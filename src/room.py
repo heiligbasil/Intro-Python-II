@@ -6,10 +6,11 @@ from item import Item
 class Room:
     '''This is the Room class'''
 
-    def __init__(self, name, description):
+    def __init__(self, name, description, is_illuminated=True):
         '''This is the default constructor'''
         self.name = name
         self.description = description
+        self.is_illuminated = is_illuminated
         self.items: Item = []
         self.n_to: Room = None
         self.s_to: Room = None

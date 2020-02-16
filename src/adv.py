@@ -2,7 +2,7 @@ import sys
 import textwrap
 from room import Room
 from player import Player
-from item import Item
+from item import Item, LightSource
 from colorama import Fore, Back, Style
 import colorama
 
@@ -13,7 +13,7 @@ colorama.init(autoreset=True)
 # Declare all the rooms
 room = {
     'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons."),
+                     "North of you, the cave mount beckons.",is_illuminated=False),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
 passages run north and east."""),
@@ -46,7 +46,8 @@ room['treasure'].s_to = room['narrow']
 item = [Item('torch', 'A dry torch with only the top burnt.'),
         Item('matchbook', 'A full book of dry intact matches.'),
         Item('rope', 'A coiled sturdy-looking dry twisted rope of twine.'),
-        Item('dagger', 'A rusting and blunt weapon in a sheath.'), ]
+        Item('dagger', 'A rusting and blunt weapon in a sheath.'),
+        LightSource("Flamer","A flaming torch provides orange flickering illumination.") ]
 
 
 # Link the items to the rooms
@@ -56,28 +57,46 @@ room['narrow'].items = [item[2]]
 room['treasure'].items = [item[3]]
 
 
+# Determine if there is enough light available to see
+def enough_light():
+    if player.current_room.is_illuminated:
+        return True
+    elif found_lightsource(player.current_room.items):
+        return True
+    elif found_lightsource(player.items):
+        return True
+    return False
+# Search items for a LightSource
+def found_lightsource(these_items: Item = []):
+    for each_item in these_items:
+        if each_item.isinstance(LightSource):
+            return True
+    return False
+
+
 #
 # Main
 #
 
 
 # Make a new player object that is currently in the 'outside' room.
-player: Player = Player(input("What's your name? ") or 'Kowalksi',
-                        room['outside'])
+player: Player = Player(input("What's your name? ") or 'Kowalksi', room['outside'])
 print(f'{Back.WHITE}{Fore.BLACK}Welcome, {player.name} :)')
-
 
 # REPL command loop - the game's engine
 while True:
     print(f'{Fore.BLUE}|<>| Location |<>|')
     print(f"{player.name}'s current location is {Back.MAGENTA}{player.current_room.name}{Back.RESET}.")
-    print(textwrap.TextWrapper(width=65).fill(player.current_room.description))
-    if len(player.current_room.items) > 0:
-        for item in player.current_room.items:
-            print(
-                f'There is a {Back.GREEN}{item.name}{Back.RESET} here. {item.description}')
+    if (enough_light()):
+        print(textwrap.TextWrapper(width=65).fill(player.current_room.description))
+        if len(player.current_room.items) > 0:
+            for item in player.current_room.items:
+                print(
+                    f'There is a {Back.GREEN}{item.name}{Back.RESET} here. {item.description}')
+    else:
+        print(f"{Back.BLACK}{Fore.WHITE}{Style.BRIGHT}It's pitch black!")
     print(
-        f'You have {Fore.YELLOW}{player.xp}{Fore.RESET} XP and can move in a direction (n/s/e/w), show (i)nventory, or (q)uit.')
+        f'You have {Fore.YELLOW}{player.xp}{Fore.RESET} XP and can move in a direction (n/s/e/w), get/drop/use items, show (i)nventory, or (q)uit.')
     command: str = input(
         f'{Fore.CYAN}|<>| What is your desire? |<>|{Back.RESET} ==> ')
     command = command.lower().strip().split()
