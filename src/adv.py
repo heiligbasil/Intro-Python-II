@@ -48,7 +48,7 @@ item_list = [Item('torch', 'A dry torch with only the top burnt.'),
              Item('matchbook', 'A full book of dry intact matches.'),
              Item('rope', 'A coiled sturdy-looking dry twisted rope of twine.'),
              Item('dagger', 'A rusting and blunt weapon in a sheath.'),
-             LightSource("Flamer", "A flaming torch provides orange flickering illumination.")]
+             LightSource("flamer", "A flaming torch provides orange flickering illumination.")]
 
 
 # Link the items to the rooms
@@ -59,7 +59,7 @@ room_list['treasure'].items = [item_list[3]]
 
 
 # Determine if there is enough light available to see
-def enough_light():
+def enough_illumination():
     if player.current_room.is_illuminated:
         return True
     elif found_lightsource(player.current_room.items):
@@ -72,7 +72,7 @@ def enough_light():
 # Search items for a LightSource
 def found_lightsource(these_items: list):
     for each_item in these_items:
-        if each_item.isinstance(LightSource):
+        if isinstance(each_item, LightSource):
             return True
     return False
 
@@ -102,7 +102,7 @@ print(f'{Back.WHITE}{Fore.BLACK}Welcome, {player.name} :)')
 while True:
     print(f'{Fore.BLUE}|<>| Location |<>|')
     print(f"{player.name}'s current location is {Back.MAGENTA}{player.current_room.name}{Back.RESET}.")
-    if (enough_light()):
+    if (enough_illumination()):
         print(textwrap.TextWrapper(width=65).fill(
             player.current_room.description))
         if len(player.current_room.items) > 0:
@@ -120,7 +120,7 @@ while True:
         command = command[0][0]
         if command in ['n', 's', 'e', 'w']:
             # Go to the room, if possible
-            player.go(command)
+            player.go(command, enough_illumination())
         elif command == 'i':
             # Look through the current inventory
             print(f'{Fore.YELLOW}|<>| Inventory |<>|')
