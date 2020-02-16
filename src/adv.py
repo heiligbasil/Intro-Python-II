@@ -13,15 +13,14 @@ colorama.init(autoreset=True)
 
 # Declare all the rooms
 room_list = {
-    'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons."),
+    'outside':  Room("Outside Cave Entrance", "North of you, the cave mount beckons."),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
 passages run north and east."""),
 
-    'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
-into the darkness. Ahead to the north, a light flickers in
-the distance, but there is no way across the chasm."""),
+    'overlook': Room("Grand Overlook", """A steep cliff appears before you,
+falling into the darkness. Ahead to the north, a light flickers in the distance,
+but there is no way across the chasm. Brambles to the west."""),
 
     'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
 to north. The smell of gold permeates the air."""),
@@ -29,6 +28,21 @@ to north. The smell of gold permeates the air."""),
     'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
 chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south."""),
+
+    'bramble': Room('Brambly Outcropping', """A perilous ledge strewn with rocks leading
+downwards to the west which is overgrown with brambles and thorns. It looks dangerous."""),
+
+    'holly': Room('Holly Outcropping', """The narrow ledge continues westward with overgrown
+holly bushes and thorns. Coninuing west will not be pleasant."""),
+
+    'nettles': Room('Nettles Outcropping', """Stinging nettles, poison oak, and
+poison ivy cover the path forward. Brushing against the plants is unavoidable. The path seems
+to curve north and incline east."""),
+
+    'junction' : Room('Cliff Base Junction', """The base of the towering cliff.
+Rocks, femurs, and various artifacts are embedded in the ground. To the west is 
+a forest, to the north is a path leading into darkness, to the east follows a 
+path along the cliffside, to the south is the painful path back up to the top.""")
 }
 
 
@@ -41,6 +55,14 @@ room_list['overlook'].s_to = room_list['foyer']
 room_list['narrow'].w_to = room_list['foyer']
 room_list['narrow'].n_to = room_list['treasure']
 room_list['treasure'].s_to = room_list['narrow']
+room_list['overlook'].w_to = room_list['bramble']
+room_list['bramble'].w_to=room_list['holly']
+room_list['bramble'].e_to=room_list['overlook']
+room_list['holly'].w_to=room_list['nettles']
+room_list['holly'].e_to=room_list['bramble']
+room_list['nettles'].n_to=room_list['junction']
+room_list['nettles'].e_to=room_list['holly']
+room_list['junction'].s_to=room_list['nettles']
 
 
 # Declare all of the items
