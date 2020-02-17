@@ -3,6 +3,7 @@ import textwrap
 from room import Room
 from player import Player
 from item import Item, LightSource
+from adversary import Adversary, Hazard, Monster
 from colorama import Fore, Back, Style
 import colorama
 
@@ -39,7 +40,7 @@ holly bushes and thorns. Coninuing west will not be pleasant."""),
 poison ivy cover the path forward. Brushing against the plants is unavoidable. The path seems
 to curve north and incline east."""),
 
-    'junction' : Room('Cliff Base Junction', """The base of the towering cliff.
+    'junction': Room('Cliff Base Junction', """The base of the towering cliff.
 Rocks, femurs, and various artifacts are embedded in the ground. To the west is 
 a forest, to the north is a path leading into darkness, to the east follows a 
 path along the cliffside, to the south is the painful path back up to the top.""")
@@ -56,13 +57,13 @@ room_list['narrow'].w_to = room_list['foyer']
 room_list['narrow'].n_to = room_list['treasure']
 room_list['treasure'].s_to = room_list['narrow']
 room_list['overlook'].w_to = room_list['bramble']
-room_list['bramble'].w_to=room_list['holly']
-room_list['bramble'].e_to=room_list['overlook']
-room_list['holly'].w_to=room_list['nettles']
-room_list['holly'].e_to=room_list['bramble']
-room_list['nettles'].n_to=room_list['junction']
-room_list['nettles'].e_to=room_list['holly']
-room_list['junction'].s_to=room_list['nettles']
+room_list['bramble'].w_to = room_list['holly']
+room_list['bramble'].e_to = room_list['overlook']
+room_list['holly'].w_to = room_list['nettles']
+room_list['holly'].e_to = room_list['bramble']
+room_list['nettles'].n_to = room_list['junction']
+room_list['nettles'].e_to = room_list['holly']
+room_list['junction'].s_to = room_list['nettles']
 
 
 # Declare all of the items
@@ -80,7 +81,26 @@ room_list['narrow'].items = [item_list[2]]
 room_list['treasure'].items = [item_list[3]]
 
 
+# Declare all of the adversaries
+adversary_list: dict = {
+    'bramble': Hazard('Bramble', 'Brambles and thorny bushes stick and scratch!', 1),
+    'holly': Hazard('Holly', 'Holly leaves prick and poke!', 1),
+    'nettle': Hazard('Nettle', 'Stinging nettles and poison plants are nocuous and noxious!', 1),
+    'bat': Monster('Bat', 'Bats bite and spread plagues!', 2, 1),
+    'mouse': Monster('Mouse', 'Mice gnaw and carry disease!', 2, 1)
+}
+
+
+# Link the adversaries to the rooms
+room_list['bramble'].adversaries.append(adversary_list['bramble'])
+room_list['holly'].adversaries.append(adversary_list['holly'])
+room_list['nettles'].adversaries.append(adversary_list['nettle'])
+room_list['junction'].adversaries.append(adversary_list['bat'])
+room_list['junction'].adversaries.append(adversary_list['mouse'])
+
 # Determine if there is enough light available to see
+
+
 def enough_illumination():
     if player.current_room.is_illuminated:
         return True
@@ -109,6 +129,21 @@ def item_index_in_list(this_list: list, text: str):
     return index_of_item
 
 
+# Check for existing adversaries
+def threat_of_adversaries(this_list: list):
+    if (len(this_list) > 0):
+        return True
+
+
+# Deal harm to player for each adversary
+def deal_harm_from_adversaries(this_list: list):
+    for adversary in this_list:
+        print(f'{Back.RED}{adversary.name}{Back.RESET} does {Fore.RED}{adversary.harm}{Fore.RESET} HP harm to you!')
+        if player.decrease_hp(adversary.harm):
+            return True
+    return False
+
+
 #
 # Main
 #
@@ -127,14 +162,22 @@ while True:
     if (enough_illumination()):
         print(textwrap.TextWrapper(width=65).fill(
             player.current_room.description))
+        if len(player.current_room.adversaries) > 0:
+            for adversary in player.current_room.adversaries:
+                print(
+                    f'There is a {Back.RED}{adversary.name}{Back.RESET} here. {adversary.description}')
         if len(player.current_room.items) > 0:
             for item in player.current_room.items:
                 print(
                     f'There is a {Back.GREEN}{item.name}{Back.RESET} here. {item.description}')
     else:
         print(f"{Back.BLACK}{Fore.WHITE}{Style.BRIGHT}It's pitch black!")
+    if threat_of_adversaries(player.current_room.adversaries):
+        if deal_harm_from_adversaries(player.current_room.adversaries):
+            print(f'{Fore.RED}You have died...{Fore.RESET}')
+            sys.exit()
     print(
-        f'You have {Fore.YELLOW}{player.xp}{Fore.RESET} XP and can move in a direction (n/s/e/w), get/drop/use items, show (i)nventory, or (q)uit.')
+        f'You have {Fore.YELLOW}{player.xp}{Fore.RESET} XP, {Fore.YELLOW}{player.current_hp}{Fore.RESET} HP, and can move in a direction (n/s/e/w), get/drop/use items, show (i)nventory, or (q)uit.')
     command: str = input('|<>| What is your desire? |<>| ==> ')
     command = command.lower().strip().split()
     if len(command) == 1:
@@ -169,7 +212,7 @@ while True:
                     it.on_get()
                     player.items.append(it)
                     player.current_room.items.remove(it)
-                    player.xp += 2
+                    player.increase_xp(2)
                     break
             else:
                 print(f'{Fore.CYAN}That item was not found.')
@@ -180,7 +223,7 @@ while True:
                     it.on_drop()
                     player.items.remove(it)
                     player.current_room.items.append(it)
-                    player.xp += 1
+                    player.increase_xp(1)
                     break
             else:
                 print(f'{Fore.CYAN}That item was not found.')
@@ -197,7 +240,7 @@ while True:
                     player.items.pop(index_of_item_1)
                     player.items.pop(index_of_item_2)
                     player.items.append(item_list[4])
-                    player.xp += 5
+                    player.increase_xp(5)
                     print(
                         f'{Fore.GREEN}Your ingenuity has produced a {Fore.YELLOW}{item_list[4].name}{Fore.RESET}.')
                 else:

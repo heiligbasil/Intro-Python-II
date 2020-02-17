@@ -15,12 +15,14 @@ class Cardinal(Enum):
 # e.g. what room they are in currently.
 class Player:
     '''This is the Player class'''
+    xp: int = 0
+    current_hp: int = 10
+    max_hp: int = current_hp
 
-    def __init__(self, name, starting_room, xp=0):
+    def __init__(self, name, starting_room):
         '''This is the default constructor'''
         self.name: str = name
         self.current_room: Room = starting_room
-        self.xp: int = xp
         self.items: list = []
 
     def go(self, direction, illumination):
@@ -43,5 +45,24 @@ class Player:
             else:
                 self.current_room = go_to_room
                 message = f'{self.name} has moved {cardinal}.'
-                self.xp += 1
+                self.increase_xp(1)
         print(message)
+
+    def increase_xp(self, amount: int):
+        '''This increments the player's XP by the specified amount'''
+        self.xp += amount
+
+    def decrease_hp(self, amount: int):
+        '''This decreases the player's HP by the specified amount'''
+        self.current_hp -= amount
+        if self.current_hp < 1:
+            # Player died
+            return True
+        return False
+
+    def increase_hp(self, amount: int):
+        '''This increases the player's HP by the specified amount'''
+        self.current_hp += amount
+        if self.current_hp > self.max_hp:
+            # Don't allow HP to go over the max
+            self.current_hp = self.max_hp
