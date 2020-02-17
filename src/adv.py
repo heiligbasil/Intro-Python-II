@@ -83,11 +83,25 @@ room_list['treasure'].items = [item_list[3]]
 
 # Declare all of the adversaries
 adversary_list: dict = {
-    'bramble': Hazard('Bramble', 'Brambles and thorny bushes stick and scratch!', 1),
-    'holly': Hazard('Holly', 'Holly leaves prick and poke!', 1),
-    'nettle': Hazard('Nettle', 'Stinging nettles and poison plants are nocuous and noxious!', 1),
-    'bat': Monster('Bat', 'Bats bite and spread plagues!', 2, 1),
-    'mouse': Monster('Mouse', 'Mice gnaw and carry disease!', 2, 1)
+    'bramble': Hazard('Bramble', 'Brambles and thorny bushes stick and scratch!', 1,
+                      'The brambles and thorny bushes are sticking and scratching you!',
+                      'Your attempts at harming these brambles result in further sticking and scratching!'),
+
+    'holly': Hazard('Holly', 'Holly leaves prick and poke!', 1,
+                    'The holly leaves are pricking and poking you!',
+                    'Your attempts at harming these holly bushes result in further pricking and poking!'),
+
+    'nettle': Hazard('Nettle', 'Stinging nettles and poison plants are nocuous and noxious!', 1,
+                     'The stinging nettles are poisoning you!',
+                     'Your attempts at harming these stinging nettles and poisonous plants results in further poisoning!'),
+
+    'bat': Monster('Bat', 'Bats bite and spread plagues!', 2,
+                   'The bat is biting and scratching you!',
+                   'You attack the crazy bat!', 1),
+
+    'mouse': Monster('Mouse', 'Mice gnaw and carry disease!', 2,
+                     'The mouse is gnawing and scratching you!',
+                     'You attack the poor mouse!', 1)
 }
 
 
@@ -138,8 +152,9 @@ def threat_of_adversaries(this_list: list):
 # Deal harm to player for each adversary
 def deal_harm_from_adversaries(this_list: list):
     for adversary in this_list:
-        print(f'{Back.RED}{adversary.name}{Back.RESET} does {Fore.RED}{adversary.harm}{Fore.RESET} HP harm to you!')
-        if player.decrease_hp(adversary.harm):
+        print(adversary.harm_message, end=' ')
+        print(f'{Back.RED}{adversary.name}{Back.RESET} does {Fore.RED}{adversary.harm_amount}{Fore.RESET} HP harm to you!')
+        if player.decrease_hp(adversary.harm_amount):
             return True
     return False
 
@@ -157,7 +172,7 @@ print(f'{Back.WHITE}{Fore.BLACK}Welcome, {player.name} :)')
 
 # REPL command loop - the game's engine
 while True:
-    print(f'{Fore.BLUE}|<>| Location |<>|')
+    print(f'{Fore.BLUE}|<>| Setting |<>|')
     print(f"{player.name}'s current location is {Back.MAGENTA}{player.current_room.name}{Back.RESET}.")
     if (enough_illumination()):
         print(textwrap.TextWrapper(width=65).fill(
@@ -176,8 +191,9 @@ while True:
         if deal_harm_from_adversaries(player.current_room.adversaries):
             print(f'{Fore.RED}You have died...{Fore.RESET}')
             sys.exit()
-    print(
-        f'You have {Fore.YELLOW}{player.xp}{Fore.RESET} XP, {Fore.YELLOW}{player.current_hp}{Fore.RESET} HP, and can move in a direction (n/s/e/w), get/drop/use items, show (i)nventory, or (q)uit.')
+    print(f"""You have {Fore.YELLOW}{player.xp}{Fore.RESET} XP, \
+{Fore.YELLOW}{player.current_hp}{Fore.RESET} HP, \
+and can move in a direction (n/s/e/w), get/drop/use items, (a)ttack, (i)nventory, or (q)uit.""")
     command: str = input('|<>| What is your desire? |<>| ==> ')
     command = command.lower().strip().split()
     if len(command) == 1:
@@ -195,6 +211,9 @@ while True:
                         f'You have a {Back.GREEN}{item.name}{Back.RESET}. {item.description}')
             else:
                 print('Your pockets are empty :(')
+        elif command == 'a':
+            print(
+                f'{Fore.CYAN}Attack what?{Fore.RESET} (Specify the name of your fury.)')
         elif command == 'q':
             # Leave this program
             print("Goodbye...")
@@ -253,6 +272,22 @@ while True:
                         f"{Fore.MAGENTA}You aren't carrying a {commanded_object}.")
                 if index_of_item_2 == None:
                     print(f"{Fore.MAGENTA}You aren't carrying a {effected_object}.")
+        elif command[0] == 'attack' or command[0] == 'a':
+            # Attack the specified adversary
+            if player.attack_adversary(commanded_object):
+                # Either the monster died or the player died
+                adversary: Adversary = None
+                for this_adversary in player.current_room.adversaries:
+                    if this_adversary.name.lower() == commanded_object:
+                        # Grab the adversary
+                        adversary = this_adversary
+                if adversary.health < 1:
+                    print(f'{Fore.GREEN}You have vanquished a {adversary.name}!')
+                    player.current_room.adversaries.remove(adversary)
+                if player.current_hp < 1:
+                    print(
+                        f'A {adversary.name} was your downfall. {Fore.RED}You have died...{Fore.RESET}')
+                    sys.exit()
         else:
             # Unused command
             print(f'{Fore.MAGENTA}|<>| Command misunderstood |<>|')

@@ -1,6 +1,7 @@
 from enum import Enum
 from room import Room
 from item import Item, LightSource
+from adversary import Adversary, Hazard, Monster
 
 
 # Associate each direction with its cardinal identifier
@@ -18,6 +19,7 @@ class Player:
     xp: int = 0
     current_hp: int = 10
     max_hp: int = current_hp
+    power: int = 1
 
     def __init__(self, name, starting_room):
         '''This is the default constructor'''
@@ -49,7 +51,7 @@ class Player:
         print(message)
 
     def increase_xp(self, amount: int):
-        '''This increments the player's XP by the specified amount'''
+        '''This increases the player's XP by the specified amount'''
         self.xp += amount
 
     def decrease_hp(self, amount: int):
@@ -66,3 +68,24 @@ class Player:
         if self.current_hp > self.max_hp:
             # Don't allow HP to go over the max
             self.current_hp = self.max_hp
+
+    def attack_adversary(self, adversary_name: str):
+        '''This allows the player to damage the adversary/monster'''
+        for adversary in self.current_room.adversaries:
+            if adversary_name == adversary.name.lower():
+                message:str = adversary.injured_message
+                # Found the adversary that the player wants to attack
+                if isinstance(adversary, Hazard):
+                    # Prevent harming natural hazards; instead receive harm
+                    print(f'{message} Attacking a {adversary.name} has proven futile.')
+                    self.increase_xp(1)
+                    # Send the status of the player back, True if dead, False if alive
+                    return self.decrease_hp(adversary.harm_amount)
+                else:
+                    # Assume this is a monster
+                    print(f'{message}')
+                    self.increase_xp(2)
+                    # Send the status of the monster back, True if dead, False if alive
+                    return adversary.decrease_health(self.power)
+        print(f"'{adversary_name}' is an unknown foe.")
+        return False
