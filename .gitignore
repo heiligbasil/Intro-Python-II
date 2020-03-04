@@ -1,10 +1,7 @@
 .vscode
 *.pyc
 __pycache__
-
-.vscode
-*.pyc
-__pycache__
+.idea
 
 
 # Created by https://www.gitignore.io/api/python,visualstudiocode
